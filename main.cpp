@@ -1,5 +1,6 @@
 #include <iostream>
 #include <chrono>
+#include "dataset_loader.h"
 #include "preprocess.h"
 #include "inverted_index.h"
 #include "search_engine.h"
@@ -10,18 +11,12 @@ int main() {
     Preprocessor preprocessor;
     InvertedIndex invIndex;
 
-    // Sample documents (replace with 20 Newsgroups dataset)
-    vector<string> documents = {
-        "Data structures and algorithms are important",
-        "Search engines use inverted index",
-        "Data science uses data and algorithms"
-    };
+    // Path to 20 Newsgroups dataset folder
+    string datasetPath = "/Users/lavishavalecha/twenty+newsgroups/mini_newsgroups";
 
-    for (int i = 0; i < documents.size(); i++) {
-        auto tokens = preprocessor.preprocessText(documents[i]);
-        invIndex.addDocument(i, tokens);
-        invIndex.totalDocuments++;
-    }
+
+    // Load dataset and build inverted index
+    loadDataset(datasetPath, preprocessor, invIndex);
 
     SearchEngine engine(invIndex, preprocessor);
 
@@ -34,16 +29,18 @@ int main() {
     auto end = chrono::high_resolution_clock::now();
 
     cout << "\nSearch Results:\n";
-    for (auto& res : results) {
-        cout << "Document " << res.first
-             << " | Score: " << res.second << endl;
-    }
+    int k = 10;  //printing top 10
+    for (int i = 0; i < results.size() && i < k; i++) {
+    cout << "Document ID: " << results[i].first
+         << " | Score: " << results[i].second << endl;
+}
+
 
     auto duration =
         chrono::duration_cast<chrono::microseconds>(end - start);
 
     cout << "\nSearch Time: " << duration.count() << " microseconds\n";
-    cout << "Total Documents: " << invIndex.totalDocuments << endl;
+    cout << "Total Documents Indexed: " << invIndex.totalDocuments << endl;
     cout << "Unique Words Indexed: " << invIndex.index.size() << endl;
 
     return 0;
